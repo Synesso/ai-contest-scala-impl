@@ -14,6 +14,13 @@ class PassTheParcelBot extends Bot {
     })
     val canGive = ownedByMe.filter(_._1.size > 1)
     val orders = canGive.flatMap(pi => target.map(t => new Order(pi._1, t._1, pi._1.size - 1)))
-    orders.toSet
+    val ordersViaFriends = orders.map{o =>
+      val notFrom = withIndex.filterNot(_._1 == o.from)
+      val closerThanDestination = notFrom.filter(_._1.distanceTo(o.to) < o.from.distanceTo(o.to))
+      val notOffCourse = closerThanDestination.filter(pi => pi._1.distanceTo(o.from) + pi._1.distanceTo(o.to) < o.from.distanceTo(o.to) * 1.2)
+      val closest = notOffCourse.sortWith((pi1, pi2) => pi1._1.distanceTo(o.from) < pi2._1.distanceTo(o.from))
+      o.copy(to = closest.head._1)
+    }
+    ordersViaFriends.toSet
   }
 }
