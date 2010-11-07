@@ -12,7 +12,7 @@ case class Planet(index: Int, x: Double, y: Double, owner: Owner, size: Int, reg
     ceil(sqrt(dx * dx + dy * dy)).asInstanceOf[Int]
   }
 
-  def hasSurplus = Me.equals(owner) && size > 1
+  def hasSurplus = Me.equals(owner) && size > 2
   def hasDeficit = !Me.equals(owner) && regen > 0
 
   lazy val leastFavourableProjection = {
