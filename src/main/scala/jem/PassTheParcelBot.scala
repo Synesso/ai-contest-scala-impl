@@ -1,6 +1,7 @@
 package jem
 
 import collection.Seq
+import scala.math.min
 
 class PassTheParcelBot extends Bot {
   override def respondTo(turnState: Seq[Planet]): Set[Order] = {
@@ -15,7 +16,11 @@ class PassTheParcelBot extends Bot {
     val target = if (receivers.isEmpty) None else Some (receivers.reduceLeft{(nl1, nl2) =>
       if (nl1._1.distanceTo(centreOfSenders) > nl2._1.distanceTo(centreOfSenders)) nl2 else nl1
     })
-    val orders = senders.flatMap(nl => target.map(t => new Order(nl._1, t._1, if (nl._1.size > nl._2.size) nl._2.size - 1 else nl._1.size - 1)))
+    val orders = senders.flatMap{nl =>
+      val (now, later) = nl
+      val canAffordToSend = min(now.size, later.size) - 1
+      target.map(t => new Order(nl._1, t._1, min(canAffordToSend, t._2.size + 1)))
+    }
     val ordersViaFriends = orders.map{o =>
       val notFrom = senders.filterNot(_._1 == o.from)
       val closerThanDestination = notFrom.filter(_._1.distanceTo(o.to) < o.from.distanceTo(o.to))
