@@ -13,8 +13,9 @@ class PassTheParcelBot extends Bot {
     val cumulativeCoordinates = senders.foldLeft((0.0, 0.0)) ((acc, next) => (acc._1 + next._1.x, acc._2 + next._1.y))
     val centreOfSenders = (cumulativeCoordinates._1 / senders.size, cumulativeCoordinates._2 / senders.size)
 
+    val scorer = new CandidateScore(centreOfSenders)
     val target = if (receivers.isEmpty) None else Some (receivers.reduceLeft{(nl1, nl2) =>
-      if (nl1._1.distanceTo(centreOfSenders) > nl2._1.distanceTo(centreOfSenders)) nl2 else nl1
+      if (scorer.forTarget(nl1._2) > scorer.forTarget(nl2._2)) nl2 else nl1
     })
     val orders = senders.flatMap{nl =>
       val (now, later) = nl
