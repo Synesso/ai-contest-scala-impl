@@ -49,7 +49,7 @@ case class Planet(index: Int, x: Double, y: Double, owner: Owner, size: Int, reg
         case (Me, x, Me, y) => if (x > y) pi2 else pi1
         case (Me, _, _, _) => pi2
         case (_, _, Me, _) => pi1
-        case (_, x, _, y) => if (x > y) pi1 else pi2
+        case (_, x, _, y) => if (x < y) pi2 else pi1
       }
     }
 
