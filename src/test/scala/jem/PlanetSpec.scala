@@ -5,20 +5,21 @@ import org.specs.Specification
 class PlanetSpec extends Specification {
 
   "a planet with no incoming fleets" should {
-    "find the current state as the worst" in {
-      val planet = Planet(1, 1.0, 1.0, Me, 100, 5, Nil)
-      planet.leastFavourableProjection must_== planet
+    val planet = Planet(1, 1.0, 1.0, Me, 100, 5, Nil)
+
+    "have the current state for all three phases of the projection" in {
+      planet.projection must_== Projection(planet, (planet, 0), (planet, 0))
     }
   }
 
   "my planet that will be taken by an enemy fleet" should {
-    "find the final state as the worst" in {
-      val planet = Planet(1, 1.0, 1.0, Me, 100, 5, List(Fleet(Him, 125, -1, 2)))
-      println(planet)
-      println(planet.leastFavourableProjection)
-      println(planet.copy(owner = Him, size = 15))
-      planet.leastFavourableProjection must_== planet.copy(owner = Him, size = 15)
+    val planet = Planet(1, 1.0, 1.0, Me, 100, 5, List(Fleet(Him, 125, -1, 2)))
+
+    "have the final state as the worst state" in {
+      val endState = planet.copy(size = 15, owner = Him, fleets = Nil)
+      planet.projection must_== Projection(planet, (endState, 2), (endState, 2))
     }
   }
+
 
 }

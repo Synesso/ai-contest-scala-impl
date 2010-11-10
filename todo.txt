@@ -1,6 +1,7 @@
 todo:
     don't send if you can't take it
     split fleets up, don't just send all to one place
+    fleet netting
     don't send if you can't arrive in time (?)
 
 done:

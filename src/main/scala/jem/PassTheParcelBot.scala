@@ -5,6 +5,12 @@ import scala.math.min
 
 class PassTheParcelBot extends Bot {
   override def respondTo(turnState: Seq[Planet]): Set[Order] = {
+    val projections = turnState.map(_.projection)
+
+
+
+
+
     val leastFavourableFutureState = turnState.map(_.leastFavourableProjection)
     val nowAndLater: Seq[(Planet, Planet)] = turnState.zip(leastFavourableFutureState)
     val senders = nowAndLater.filter(nl => nl._1.hasSurplus && nl._2.hasSurplus)
