@@ -6,11 +6,27 @@ import scala.math.min
 class PassTheParcelBot extends Bot {
   override def respondTo(turnState: Seq[Planet]): Set[Order] = {
     val projections = turnState.map(_.projection)
+    val (senders, receivers) = projections.filter(_.regen > 0).partition(_.surplus > 0)
+
+    val cumulativeCoordinates = senders.foldLeft((0.0, 0.0)) ((acc, next) => (acc._1 + next.x, acc._2 + next.y))
+    val centreOfSenders = (cumulativeCoordinates._1 / senders.size, cumulativeCoordinates._2 / senders.size)
+    val amountToSend = senders.foldLeft(0)(_ + _.surplus)
+
+    val scorer = new CandidateScore(centreOfSenders)
+
+    val sortedTargets = receivers.toList.sortWith((r1, r2) => scorer.forTarget(r1) < scorer.forTarget(r1))
+    val (targets, _) = sortedTargets.foldLeft((List.empty[Projection], amountToSend)) {(targetsAndSurplus, receiver) =>
+      val (targets, surplus) = targetsAndSurplus
+      if (surplus > 0) (receiver :: targets, surplus - min(surplus, receiver.surplus * -1)) else (targets, surplus)
+    }
+
+    Set.empty[Order]
+  }
 
 
 
-
-
+/*
+  def respondToOld(turnState: Seq[Planet]): Set[Order] = {
     val leastFavourableFutureState = turnState.map(_.leastFavourableProjection)
     val nowAndLater: Seq[(Planet, Planet)] = turnState.zip(leastFavourableFutureState)
     val senders = nowAndLater.filter(nl => nl._1.hasSurplus && nl._2.hasSurplus)
@@ -37,4 +53,5 @@ class PassTheParcelBot extends Bot {
     }
     ordersViaFriends.toSet
   }
+*/
 }
