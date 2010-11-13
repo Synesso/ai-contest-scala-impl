@@ -3,6 +3,7 @@ todo:
     don't send if you can't take it
     fleet netting
     don't send if you can't arrive in time (?)
+    favour targets for which you have already committed lots (best target changes as map does)
 
 done:
     split fleets up, don't just send all to one place
