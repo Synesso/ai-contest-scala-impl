@@ -10,48 +10,46 @@ class PassTheParcelBot extends Bot {
 
     val cumulativeCoordinates = senders.foldLeft((0.0, 0.0)) ((acc, next) => (acc._1 + next.x, acc._2 + next.y))
     val centreOfSenders = (cumulativeCoordinates._1 / senders.size, cumulativeCoordinates._2 / senders.size)
-    val amountToSend = senders.foldLeft(0)(_ + _.surplus)
-
     val scorer = new CandidateScore(centreOfSenders)
 
-    val sortedTargets = receivers.toList.sortWith((r1, r2) => scorer.forTarget(r1) < scorer.forTarget(r1))
-    val (targets, _) = sortedTargets.foldLeft((List.empty[Projection], amountToSend)) {(targetsAndSurplus, receiver) =>
-      val (targets, surplus) = targetsAndSurplus
-      if (surplus > 0) (receiver :: targets, surplus - min(surplus, receiver.surplus * -1)) else (targets, surplus)
-    }
+    val orders = linkSendersToTargets(senders, receivers, scorer)
+    val ordersViaFriends = viaClosestRoute(orders, senders)
 
-    Set.empty[Order]
+    ordersViaFriends
   }
 
-
-
-/*
-  def respondToOld(turnState: Seq[Planet]): Set[Order] = {
-    val leastFavourableFutureState = turnState.map(_.leastFavourableProjection)
-    val nowAndLater: Seq[(Planet, Planet)] = turnState.zip(leastFavourableFutureState)
-    val senders = nowAndLater.filter(nl => nl._1.hasSurplus && nl._2.hasSurplus)
-    val receivers = nowAndLater.filter(nl => nl._2.hasDeficit)
-
-    val cumulativeCoordinates = senders.foldLeft((0.0, 0.0)) ((acc, next) => (acc._1 + next._1.x, acc._2 + next._1.y))
-    val centreOfSenders = (cumulativeCoordinates._1 / senders.size, cumulativeCoordinates._2 / senders.size)
-
-    val scorer = new CandidateScore(centreOfSenders)
-    val target = if (receivers.isEmpty) None else Some (receivers.reduceLeft{(nl1, nl2) =>
-      if (scorer.forTarget(nl1._2) > scorer.forTarget(nl2._2)) nl2 else nl1
-    })
-    val orders = senders.flatMap{nl =>
-      val (now, later) = nl
-      val canAffordToSend = min(now.size, later.size) - 1
-      target.map(t => new Order(nl._1, t._1, min(canAffordToSend, t._2.size + 1)))
+  def linkSendersToTargets(senders: Seq[Projection], receivers: Seq[Projection], scorer: CandidateScore) = {
+    val receiversNotBeingTaken = receivers.filterNot(_.last._1.owner.equals(Me))
+    val targets = receiversNotBeingTaken.toList.sortWith((r1, r2) => scorer.forTarget(r1) < scorer.forTarget(r2))
+    val (result, _) = targets.foldLeft(Set.empty[Order], senders) {(acc, target) =>
+      val (orders, remainingSenders) = acc
+      val (newOrders, depletedSenders) = ordersForTarget(target, remainingSenders)
+      (orders ++ newOrders, depletedSenders)
     }
-    val ordersViaFriends = orders.map{o =>
-      val notFrom = senders.filterNot(_._1 == o.from)
-      val closerThanDestination = notFrom.filter(_._1.distanceTo(o.to) < o.from.distanceTo(o.to))
-      val notOffCourse = closerThanDestination.filter(nl => nl._1.distanceTo(o.from) + nl._1.distanceTo(o.to) < o.from.distanceTo(o.to) * 1.2)
-      val closest = notOffCourse.sortWith((nl1, nl2) => nl1._1.distanceTo(o.from) < nl2._1.distanceTo(o.from))
-      closest.headOption.map(nl => o.copy(to = nl._1)).getOrElse(o)
-    }
-    ordersViaFriends.toSet
+    result
   }
-*/
+
+  def ordersForTarget(target: Projection, senders: Seq[Projection]): (Set[Order], Seq[Projection]) = {
+    val result = senders.foldLeft((Set.empty[Order], List.empty[Projection], target.surplus)) {(acc, sender) =>
+      val (ordersSoFar, unusedSenders, deficit) = acc
+      if (deficit > 0) (ordersSoFar, sender :: unusedSenders, deficit)
+      else if (sender.surplus > 0) {
+        val amount: Int = if (deficit == 0) 1 else min(deficit * -1, sender.surplus)
+        val order: Order = Order(sender.current, target.current, amount)
+        val newOrders: Set[Order] = ordersSoFar + order
+        if (amount == sender.surplus) (newOrders, unusedSenders, deficit + amount)
+        else (newOrders, sender.afterSending(amount) :: unusedSenders, deficit + amount)
+      } else acc
+    }
+    (result._1, result._2)
+  }
+
+  def viaClosestRoute(orders: Set[Order], friendly: Seq[Projection]): Set[Order] = orders.map{o =>
+      val notSource = friendly.filterNot(_.current.equals(o.from))
+      val closerThanDestination = notSource.filter(_.distanceTo(o.to) < o.from.distanceTo(o.to))
+      val notOffCourse = closerThanDestination.filter(p => p.distanceTo(o.from) + p.distanceTo(o.to) < o.from.distanceTo(o.to) * 1.2)
+      val closest = notOffCourse.sortWith(_.distanceTo(o.from) < _.distanceTo(o.from))
+      closest.headOption.map(p => o.copy(to = p.current)).getOrElse(o)
+    }
+
 }

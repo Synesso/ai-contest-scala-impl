@@ -1,10 +1,10 @@
 todo:
     don't send if you can't take it
-    split fleets up, don't just send all to one place
     fleet netting
     don't send if you can't arrive in time (?)
 
 done:
+    split fleets up, don't just send all to one place
     don't just send to the closest, send to the best (scored)
     don't send too many, send just enough
     bug - dont send pop -1, send min (pop, future pop) -1

@@ -16,12 +16,6 @@ object MyBot extends Application {
     while (true) {
       val turnState = parseTurnState(source.getLines)
       val orders = bot.respondTo(turnState)
-
-/*
-      orders.map(o => o.inServerSpeak + " (%s %d) -> (%s %d) %d".format(o.from.owner, o.from.size, o.to.owner, o.to.size, o.quantity)).foreach(Log.debug)
-      Log.debug("go")
-*/
-
       orders.map(_.inServerSpeak).foreach(println)
       println("go")
     }
