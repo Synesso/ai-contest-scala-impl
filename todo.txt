@@ -1,11 +1,13 @@
 todo:
-    don't get confused between sending to one or the other in a mirror scenario
+    simple tie-breaking on best candidate (by planet index)
     don't send if you can't take it
-    fleet netting
+    don't get confused between sending to one or the other in a mirror scenario
     don't send if you can't arrive in time (?)
     favour targets for which you have already committed lots (best target changes as map does)
+    [maybe] all left over surplus should head towards target # 1.
 
 done:
+    fleet netting
     split fleets up, don't just send all to one place
     don't just send to the closest, send to the best (scored)
     don't send too many, send just enough

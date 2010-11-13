@@ -14,6 +14,7 @@ class PassTheParcelBot extends Bot {
 
     val orders = linkSendersToTargets(senders, receivers, scorer)
     val ordersViaFriends = viaClosestRoute(orders, senders)
+    val nettedOrders = nett(orders)
 
     ordersViaFriends
   }
@@ -51,5 +52,28 @@ class PassTheParcelBot extends Bot {
       val closest = notOffCourse.sortWith(_.distanceTo(o.from) < _.distanceTo(o.from))
       closest.headOption.map(p => o.copy(to = p.current)).getOrElse(o)
     }
+
+  def nett(orders:Set[Order]) = {
+    val netted = orders.foldLeft(Map.empty[(Planet, Planet), Int].withDefaultValue(0)) {(map, order) =>
+      val (from, to) = (order.from, order.to)
+      if (from.index < to.index) map.updated((from, to), map(from, to) + order.quantity)
+      else map.updated((to, from), map(to, from) + (order.quantity * -1))
+    }
+    netted.foldLeft(Set.empty[Order]){(nettedOrders, entry) =>
+      val (planets, amount) = entry
+      if (amount < 0) nettedOrders + Order(planets._2, planets._1, amount * -1)
+      else if (amount > 0) nettedOrders + Order(planets._1, planets._2, amount)
+      else nettedOrders
+    }
+  }
+/*
+  def nett(orders:Set[Order]) = {
+    orders.foldLeft(Set.empty[Order]) {(newOrders, order) =>
+      val (samePath, rest) = orders.partition(o => o.from == order.from && o.to == order.to)
+      val nettedSamePath = samePath.reduceLeft((o1, o2) => o1.copy(quantity = o1.quantity + o2.quantity))
+      rest + nettedSamePath
+    }
+  }
+*/
 
 }
