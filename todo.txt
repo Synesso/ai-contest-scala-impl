@@ -1,4 +1,5 @@
 todo:
+    don't get confused between sending to one or the other in a mirror scenario
     don't send if you can't take it
     fleet netting
     don't send if you can't arrive in time (?)
