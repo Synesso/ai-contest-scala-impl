@@ -8,11 +8,11 @@ class LinkSendersToTargetsSpec extends Specification {
 
   "a map with one sender and one target" should {
     "order a fleet from sender to target" in {
-      val senders = List(projectionOf(Planet(1, 0.0, 0.0, Me, 50, 5, Nil)))
+      val senders = List(projectionOf(Planet(1, 0.0, 0.0, Me, 51, 5, Nil)))
       val targets = List(projectionOf(Planet(2, 1.0, 1.0, Nobody, 49, 5, Nil)))
       val orders = function(senders, targets)
       orders must haveTheSameElementsAs(Set{
-        Order(senders(0).current, targets(0).current, 49)
+        Order(senders(0).current, targets(0).current, 50)
       })
     }
   }
@@ -20,8 +20,8 @@ class LinkSendersToTargetsSpec extends Specification {
   "a map with one undersupplied sender and two targets" should {
     "order a fleet from sender to best target" in {
       val senders = List(projectionOf(Planet(1, 0.0, 0.0, Me, 50, 5, Nil)))
-      val target01 = projectionOf(Planet(2, 5.0, 5.0, Nobody, 49, 5, Nil))
-      val target02 = projectionOf(Planet(3, 3.0, 3.0, Nobody, 49, 5, Nil))
+      val target01 = projectionOf(Planet(2, 5.0, 5.0, Nobody, 48, 5, Nil))
+      val target02 = projectionOf(Planet(3, 3.0, 3.0, Nobody, 48, 5, Nil))
       val targets = List(target01, target02)
       val orders = function(senders, targets)
       orders must haveTheSameElementsAs(Set{
@@ -59,6 +59,15 @@ class LinkSendersToTargetsSpec extends Specification {
         Order(senders(0).current, targets(0).current, 21),
         Order(senders(1).current, targets(1).current, 21)
       ))
+    }
+  }
+
+  "a map with a sender that cannot take a target" should {
+    "issue no orders" in {
+      val senders = Planet(1, 0, 0, Me, 25, 5, Nil).projection :: Nil
+      val targets = Planet(2, 0, 0, Nobody, 45, 5, Nil).projection :: Nil
+      val orders = function(senders, targets)
+      orders must beEmpty
     }
   }
 

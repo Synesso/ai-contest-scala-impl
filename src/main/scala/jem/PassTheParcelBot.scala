@@ -21,13 +21,24 @@ class PassTheParcelBot extends Bot {
 
   def linkSendersToTargets(senders: Seq[Projection], receivers: Seq[Projection], scorer: CandidateScore) = {
     val receiversNotBeingTaken = receivers.filterNot(_.last._1.owner.equals(Me))
-    val targets = receiversNotBeingTaken.toList.sortWith((r1, r2) => scorer.forTarget(r1) < scorer.forTarget(r2))
+    val surplus = senders.foldLeft(0)((acc, next) => acc + next.surplus)
+    val allTargets = receiversNotBeingTaken.toList.sortWith((r1, r2) => scorer.forTarget(r1) < scorer.forTarget(r2))
+    val targets = bestTargets(allTargets, surplus)
     val (result, _) = targets.foldLeft(Set.empty[Order], senders) {(acc, target) =>
       val (orders, remainingSenders) = acc
       val (newOrders, depletedSenders) = ordersForTarget(target, remainingSenders)
       (orders ++ newOrders, depletedSenders)
     }
     result
+  }
+
+  def bestTargets(sortedTargets: List[Projection], surplus: Int) = {
+    val (selected, _) = sortedTargets.foldLeft(List.empty[Projection], surplus) {(acc, next) =>
+      val (selectedSoFar, remainingSurplus) = acc
+      if (next.surplus * -1 <= remainingSurplus) (next :: selectedSoFar, remainingSurplus + next.surplus)
+      else (selectedSoFar, remainingSurplus)
+    }
+    selected.reverse
   }
 
   def ordersForTarget(target: Projection, senders: Seq[Projection]): (Set[Order], Seq[Projection]) = {
@@ -66,14 +77,4 @@ class PassTheParcelBot extends Bot {
       else nettedOrders
     }
   }
-/*
-  def nett(orders:Set[Order]) = {
-    orders.foldLeft(Set.empty[Order]) {(newOrders, order) =>
-      val (samePath, rest) = orders.partition(o => o.from == order.from && o.to == order.to)
-      val nettedSamePath = samePath.reduceLeft((o1, o2) => o1.copy(quantity = o1.quantity + o2.quantity))
-      rest + nettedSamePath
-    }
-  }
-*/
-
 }
