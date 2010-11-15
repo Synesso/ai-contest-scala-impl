@@ -1,5 +1,4 @@
 todo:
-    choosing the closest sender seems broken (e.g. http://ai-contest.com/visualizer.php?game_id=7138534)
     simple tie-breaking on best candidate (by planet index)
     don't send if you can't take it
     don't get confused between sending to one or the other in a mirror scenario
@@ -8,6 +7,7 @@ todo:
     [maybe] all left over surplus should head towards target # 1.
 
 done:
+    choosing the closest sender seems broken (e.g. http://ai-contest.com/visualizer.php?game_id=7138534)
     fleet netting
     split fleets up, don't just send all to one place
     don't just send to the closest, send to the best (scored)

@@ -39,6 +39,29 @@ class LinkSendersToTargetsSpec extends Specification {
     }
   }
 
+  "a map with a one sender, one redundant surplus planet and one target" should {
+    "issue fleets from the sender, being closest" in {
+      val senders = List(Planet(1, 3, 3, Me, 50, 5, Nil).projection, Planet(2, 5, 5, Me, 50, 5, Nil).projection)
+      val targets = List(Planet(3, 0, 0, Nobody, 30, 5, Nil).projection)
+      val orders = function(senders, targets)
+      orders must haveTheSameElementsAs(Set{
+        Order(senders(0).current, targets(0).current, 31)
+      })
+    }
+  }
+
+  "a map with mirrored targets and senders" should {
+    "issue fleets to each target from its closest sender" in {
+      val senders = Planet(1, 2, 2, Me, 90, 5, Nil).projection :: Planet(2, 8, 8, Me, 90, 5, Nil).projection :: Nil
+      val targets = Planet(3, 3, 3, Nobody, 20, 5, Nil).projection :: Planet(4, 7, 7, Nobody, 20, 5, Nil).projection :: Nil
+      val orders = function(senders, targets)
+      orders must haveTheSameElementsAs(Set(
+        Order(senders(0).current, targets(0).current, 21),
+        Order(senders(1).current, targets(1).current, 21)
+      ))
+    }
+  }
+
   
   private def projectionOf(planet: Planet) = Projection(planet, (planet, 0), (planet, 0))
 

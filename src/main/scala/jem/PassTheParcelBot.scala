@@ -31,13 +31,13 @@ class PassTheParcelBot extends Bot {
   }
 
   def ordersForTarget(target: Projection, senders: Seq[Projection]): (Set[Order], Seq[Projection]) = {
-    val result = senders.foldLeft((Set.empty[Order], List.empty[Projection], target.surplus)) {(acc, sender) =>
+    val sortedSenders = senders.toList.sortWith((p1, p2) => p1.distanceTo(target) < p2.distanceTo(target))
+    val result = sortedSenders.foldLeft((Set.empty[Order], List.empty[Projection], target.surplus)) {(acc, sender) =>
       val (ordersSoFar, unusedSenders, deficit) = acc
       if (deficit > 0) (ordersSoFar, sender :: unusedSenders, deficit)
       else if (sender.surplus > 0) {
-        val amount: Int = if (deficit == 0) 1 else min(deficit * -1, sender.surplus)
-        val order: Order = Order(sender.current, target.current, amount)
-        val newOrders: Set[Order] = ordersSoFar + order
+        val amount = min(deficit * -1, sender.surplus)
+        val newOrders = if (amount > 0) ordersSoFar + Order(sender.current, target.current, amount) else ordersSoFar
         if (amount == sender.surplus) (newOrders, unusedSenders, deficit + amount)
         else (newOrders, sender.afterSending(amount) :: unusedSenders, deficit + amount)
       } else acc

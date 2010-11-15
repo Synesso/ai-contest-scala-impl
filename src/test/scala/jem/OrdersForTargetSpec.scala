@@ -65,14 +65,14 @@ class OrdersForTargetSpec extends Specification {
   "Several senders with more than what the target needs" should {
     "result in several orders and senders remaining" in {
       val target = projectionOf(Planet(0, 0, 0, Nobody, 49, 5, Nil))
-      val sender01 = projectionOf(Planet(1, 5, 5, Me, 31, 5, Nil))
-      val sender02 = projectionOf(Planet(2, 8, 8, Me, 31, 5, Nil))
+      val furtherestSender = projectionOf(Planet(2, 8, 8, Me, 31, 5, Nil))
+      val closestSender = projectionOf(Planet(1, 5, 5, Me, 31, 5, Nil))
 
-      val (orders, remainingSenders) = ordersForTarget(target, List(sender01, sender02))
+      val (orders, remainingSenders) = ordersForTarget(target, List(furtherestSender, closestSender))
       orders must haveTheSameElementsAs(Set(
-        Order(sender01.current, target.current, 30),
-        Order(sender02.current, target.current, 20)))
-      remainingSenders must haveTheSameElementsAs(Set(projectionOf(sender02.current.copy(size = 11))))
+        Order(closestSender.current, target.current, 30),
+        Order(furtherestSender.current, target.current, 20)))
+      remainingSenders must haveTheSameElementsAs(Set(projectionOf(furtherestSender.current.copy(size = 11))))
     }
   }
 
@@ -86,13 +86,23 @@ class OrdersForTargetSpec extends Specification {
     }
   }
 
-  "A target with a surplus of zero" should {
+  "A target with a surplus of -1" should {
     "receive an order of size 1 when available" in {
-      val target = projectionOf(Planet(0, 0, 0, Me, 1, 5, Nil))
+      val target = projectionOf(Planet(0, 0, 0, Me, 0, 5, Nil))
       val sender = projectionOf(Planet(1, 1, 1, Me, 50, 5, Nil))
       val (orders, remainingSenders) = ordersForTarget(target, List(sender))
       orders must haveTheSameElementsAs(Set(Order(sender.current, target.current, 1)))
       remainingSenders must haveTheSameElementsAs(Set(projectionOf(sender.current.copy(size = 49))))
+    }
+  }
+
+  "A target with a surplus of zero" should {
+    "Not receive any order" in {
+      val target = projectionOf(Planet(0, 0, 0, Me, 1, 5, Nil))
+      val sender = projectionOf(Planet(1, 1, 1, Me, 50, 5, Nil))
+      val (orders, remainingSenders) = ordersForTarget(target, List(sender))
+      orders must beEmpty
+      remainingSenders must haveTheSameElementsAs(Set(sender))
     }
   }
 
