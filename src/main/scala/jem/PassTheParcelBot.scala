@@ -20,7 +20,7 @@ class PassTheParcelBot extends Bot {
   }
 
   def linkSendersToTargets(senders: Seq[Projection], receivers: Seq[Projection], scorer: CandidateScore) = {
-    val receiversNotBeingTaken = receivers.filterNot(_.last._1.owner.equals(Me))
+    val receiversNotBeingTaken = receivers.filterNot(_.lastPlanet.owner.equals(Me))
     val surplus = senders.foldLeft(0)((acc, next) => acc + next.surplus)
     val allTargets = receiversNotBeingTaken.toList.sortWith((r1, r2) => scorer.forTarget(r1) < scorer.forTarget(r2))
     val targets = bestTargets(allTargets, surplus)
@@ -48,7 +48,7 @@ class PassTheParcelBot extends Bot {
       if (deficit > 0) (ordersSoFar, sender :: unusedSenders, deficit)
       else if (sender.surplus > 0) {
         val amount = min(deficit * -1, sender.surplus)
-        val newOrders = if (amount > 0) ordersSoFar + Order(sender.current, target.current, amount) else ordersSoFar
+        val newOrders = if (amount > 0) ordersSoFar + Order(sender(0), target(0), amount) else ordersSoFar
         if (amount == sender.surplus) (newOrders, unusedSenders, deficit + amount)
         else (newOrders, sender.afterSending(amount) :: unusedSenders, deficit + amount)
       } else acc
