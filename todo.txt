@@ -1,8 +1,6 @@
 todo:
-    send the quantity that is required to capture by the most distant source (incorporating regen)
+    do not send so much that the enemy could launch a successful attack next turn
     send more than worst state if the enemy state keeps regenerating (ie fleet is further away than worst state)
-    if there are only zero regen planets left then consider them
-    don't send if you can't arrive in time (?)
     simple tie-breaking on best candidate (by planet index)
     favour targets for which you have already committed lots (best target changes as map does)
     [maybe] all left over surplus should head towards target # 1.
@@ -18,3 +16,6 @@ done:
     08. favour protection over taking
     09. only send to neutrals when enemy is attacking if you arrive after it hits zero
     10. don't blindly send to what you can capture (as per 01). Try building up forces a little.
+
+will not do:
+    if there are only zero regen planets left then consider them
