@@ -33,10 +33,10 @@ class PassTheParcelBot extends Bot {
   }
 
   def bestTargets(sortedTargets: List[Projection], surplus: Int) = {
-    val (selected, _) = sortedTargets.foldLeft(List.empty[Projection], surplus) {(acc, next) =>
-      val (selectedSoFar, remainingSurplus) = acc
-      if (next.surplus * -1 <= remainingSurplus) (next :: selectedSoFar, remainingSurplus + next.surplus)
-      else (selectedSoFar, remainingSurplus)
+    val (selected, _, _) = sortedTargets.foldLeft(List.empty[Projection], surplus, 0) {(acc, next) =>
+      val (selectedSoFar, remainingSurplus, skipCount) = acc
+      if (next.surplus * -1 <= remainingSurplus && skipCount < 3) (next :: selectedSoFar, remainingSurplus + next.surplus, skipCount)
+      else (selectedSoFar, remainingSurplus, skipCount + 1)
     }
     selected.reverse
   }
