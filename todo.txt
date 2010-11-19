@@ -1,18 +1,20 @@
 todo:
-    only send to neutrals when enemy is attacking if you arrive after it hits zero
-    send more than worst state if the enemy state keeps regenerating (ie fleet is further away than worst state)
-    if there are only zero regen planets left then consider them
-    don't send if you can't arrive in time (?)
-    simple tie-breaking on best candidate (by planet index)
-    favour targets for which you have already committed lots (best target changes as map does)
-    [maybe] all left over surplus should head towards target # 1.
+    10. send the quantity that is required to capture by the most distant source (incorporating regen)
+    11. send more than worst state if the enemy state keeps regenerating (ie fleet is further away than worst state)
+    12. if there are only zero regen planets left then consider them
+    13. don't send if you can't arrive in time (?)
+    14. simple tie-breaking on best candidate (by planet index)
+    15. favour targets for which you have already committed lots (best target changes as map does)
+    16. [maybe] all left over surplus should head towards target # 1.
+    17. Don't blindly send to what you can capture (as per 01). Try building up forces a little.
 
 done:
-    don't send if you can't take it
-    choosing the closest sender seems broken (e.g. http://ai-contest.com/visualizer.php?game_id=7138534)
-    fleet netting
-    split fleets up, don't just send all to one place
-    don't just send to the closest, send to the best (scored)
-    don't send too many, send just enough
-    bug - dont send pop -1, send min (pop, future pop) -1
-    favour protection over taking
+    01. don't send if you can't take it
+    02. choosing the closest sender seems broken (e.g. http://ai-contest.com/visualizer.php?game_id=7138534)
+    03. fleet netting
+    04. split fleets up, don't just send all to one place
+    05. don't just send to the closest, send to the best (scored)
+    06. don't send too many, send just enough
+    07. bug - dont send pop -1, send min (pop, future pop) -1
+    08. favour protection over taking
+    09. only send to neutrals when enemy is attacking if you arrive after it hits zero

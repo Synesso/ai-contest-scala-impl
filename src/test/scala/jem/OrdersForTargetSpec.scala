@@ -104,4 +104,33 @@ class OrdersForTargetSpec extends Specification {
       remainingSenders must haveTheSameElementsAs(Set(sender))
     }
   }
+
+  "A neutral target that is being taken by the enemy" should {
+    "Not receive an order from a close supplier" in {
+      val target = Planet(0, 0, 0, Nobody, 20, 5, List(Fleet(Him, 21, -1, 10))).projection
+      val sender = Planet(1, 1, 1, Me, 50, 5, Nil).projection
+      val (orders, remainingSenders) = ordersForTarget(target, List(sender))
+      orders must beEmpty
+      remainingSenders must haveTheSameElementsAs(Set(sender))
+    }
+
+    "Receive an order from a distant supplier" in {
+      val target = Planet(0, 0, 0, Nobody, 20, 5, List(Fleet(Him, 21, -1, 6))).projection
+      val sender = Planet(1, 5, 5, Me, 50, 5, Nil).projection
+      val (orders, remainingSenders) = ordersForTarget(target, List(sender))
+      // todo - amounts change after todo item #10
+      orders must haveTheSameElementsAs(Set(Order(sender.current, target.current, 21)))
+      remainingSenders must haveTheSameElementsAs(Set(sender.current.copy(size = 29).projection))
+    }
+
+    "Receive an order from an exactly right sender" in {
+      val target = Planet(0, 0, 0, Nobody, 20, 5, List(Fleet(Him, 21, -1, 8))).projection
+      val sender01 = Planet(1, 5, 5, Me, 50, 5, Nil).projection
+      val sender02 = Planet(2, 7, 7, Me, 50, 5, Nil).projection
+      val (orders, remainingSenders) = ordersForTarget(target, List(sender01, sender02))
+      // todo - amounts change after todo item #10
+      orders must haveTheSameElementsAs(Set(Order(sender01.current, target.current, 21)))
+      remainingSenders must haveTheSameElementsAs(Set(sender01.current.copy(size = 29).projection, sender02))
+    }
+  }
 }

@@ -42,7 +42,9 @@ class PassTheParcelBot extends Bot {
   }
 
   def ordersForTarget(target: Projection, senders: Seq[Projection]): (Set[Order], Seq[Projection]) = {
-    val sortedSenders = senders.toList.sortWith((p1, p2) => p1.distanceTo(target) < p2.distanceTo(target))
+    val bestDistance = target.transitionFromNeutralToEnemy.getOrElse(0)
+    val (sendersNotTooClose, sendersTooClose) = senders.partition(_.distanceTo(target) >= bestDistance)
+    val sortedSenders = sendersNotTooClose.toList.sortWith((p1, p2) => p1.distanceTo(target) < p2.distanceTo(target))
     val result = sortedSenders.foldLeft((Set.empty[Order], List.empty[Projection], target.surplus)) {(acc, sender) =>
       val (ordersSoFar, unusedSenders, deficit) = acc
       if (deficit > 0) (ordersSoFar, sender :: unusedSenders, deficit)
@@ -53,7 +55,7 @@ class PassTheParcelBot extends Bot {
         else (newOrders, sender.afterSending(amount) :: unusedSenders, deficit + amount)
       } else acc
     }
-    (result._1, result._2)
+    (result._1, result._2 ++ sendersTooClose)
   }
 
   def viaClosestRoute(orders: Set[Order], friendly: Seq[Projection]): Set[Order] = orders.map{o =>

@@ -1,6 +1,6 @@
 package jem
 
-import scala.math.{ceil,sqrt,max,abs}
+import scala.math.{ceil,sqrt}
 
 case class Planet(index: Int, x: Double, y: Double, owner: Owner, size: Int, regen: Int, fleets: Seq[Fleet]) {
 
