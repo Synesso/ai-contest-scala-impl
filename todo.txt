@@ -1,4 +1,5 @@
 todo:
+    move any extra surplus to the friendly closest to the centres of mine and others
     do not send so much that the enemy could launch a successful attack next turn
     send more than worst state if the enemy state keeps regenerating (ie fleet is further away than worst state)
     simple tie-breaking on best candidate (by planet index)
